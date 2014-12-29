@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Broker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+    #box {
+        border: 1px solid;
+        height: 300px;
+        max-height: 300px;
+        overflow: auto; /* important */
+    }
+    </style>
+
+
+
+    <script src="mqttws31.js" type="text/javascript"></script>
+    <script src="jquery.min.js" type="text/javascript"></script>
+    <script src="config.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+    var mqtt;
+    var reconnectTimeout = 2000;
+
+    function MQTTconnect() {
+        mqtt = new Paho.MQTT.Client(
+                        window.location.hostname,
+                        port,
+                        "web_" + parseInt(Math.random() * 100,
+                        10));
+        var options = {
+            timeout: 3,
+            useSSL: useTLS,
+            cleanSession: cleansession,
+            onSuccess: onConnect,
+            onFailure: function (message) {
+                setTimeout(MQTTconnect, reconnectTimeout);
+            }
+        };
+
+        mqtt.onConnectionLost = onConnectionLost;
+        mqtt.onMessageArrived = onMessageArrived;
+
+        if (username != null) {
+            options.userName = username;
+            options.password = password;
+        }
+        console.log("Host="+ window.location.hostname + ", port=" + port + " TLS = " + useTLS + " username=" + username + " password=" + password);
+        mqtt.connect(options);
+    }
+
+    function onConnect() {
+        mqtt.subscribe(topic, {qos: 0});
+    }
+
+    function onConnectionLost(response) {
+        setTimeout(MQTTconnect, reconnectTimeout);
+    };
+
+    function onMessageArrived(message) {
+
+        var topic = message.destinationName;
+        var payload = message.payloadString;
+        
+        /*
+        if (topic == "/ble/id/fe:95:5c:da:63:9d") {
+            topic = "Green"
+        } else if (topic = "/ble/id/d7:53:ea:b7:22:6a") {
+            topic = "Bblue"
+        }
+        */
+        //$('#ws').prepend('<li>' + topic + ' = ' + payload + ' : ' + Date.now() + '</li>');
+        $('#ws').prepend('<li>' + topic + ' = ' + payload + ' : ' + new Date().toLocaleString() + '</li>');
+        
+    };
+
+
+    $(document).ready(function() {
+        MQTTconnect();
+    });
+
+    </script>
+  </head>
+  <body>
+    <h1>Broker</h1>
+    <div>
+        <div>Subscribed to <input type='text' id='topic' disabled />
+        Status: <input type='text' id='status' size="80" disabled /></div>
+        <div id="box">
+            <ul id='ws' style="font-family: 'Courier New', Courier, monospace;"></ul>
+        </div>
+    </div>
+  </body>
+</html>

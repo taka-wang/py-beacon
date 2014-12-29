@@ -1,0 +1,23 @@
+[MQTT]
+url       = localhost
+port      = 1883
+keepalive = 60
+
+[Calculator]
+queueCapacity = 2
+chkTimer      = 3
+threshold     = 10
+
+[Scanner]
+deviceId      = 0
+loops         = 1
+filter        = ""
+topic_id      = /lab3/ble/rssi/
+nearest_id    = /lab3/ble/nearest/
+
+[Emitter]
+sleepInterval = 3
+debug         = 0
+
+[Collector]
+debug         = 0
